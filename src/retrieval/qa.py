@@ -26,7 +26,8 @@ def _extract_answer(question: str, top_result: SearchResult) -> str:
         return metadata["published"]
     if "what categories" in lowered:
         return metadata["categories_joined"]
-    return first_sentence(metadata["summary"])
+    summary = str(metadata.get("summary") or "").strip()
+    return first_sentence(summary) if summary else "I don't know from the indexed corpus."
 
 
 def answer_question(question: str, settings: Settings, index: LocalEmbeddingIndex, top_k: int | None = None) -> AnswerResult:
