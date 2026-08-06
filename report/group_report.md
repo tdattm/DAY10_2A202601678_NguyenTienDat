@@ -18,7 +18,7 @@
 | 1 | [Họ tên] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
 | 2 | [Họ tên] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
 | 3 | Nguyễn Nam Phong | 2A202601320 | Observability | `quality.py`, `reporting.py`, Quality/Freshness artifacts |
-| 4 | [Nếu có] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
+| 4 | Kiều Phúc Huy | 2A202601056 | Corruption owner | `corruption.py`, `data/results/corruption_log.json`, corrupted dataset |
 | 5 | [Nếu có] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
 
 ## 2. Tóm tắt kết quả
@@ -63,7 +63,7 @@ Crossref API
 | Embedding/index   | [Input]        | [Model/index config]       | [Đường dẫn artifact] | [Thành viên] |
 | Evaluation        | [Input]        | [Test set và metrics]     | [Đường dẫn artifact] | [Thành viên] |
 | Observability     | Cleaned DataFrame | Chạy rules Data Quality, Freshness và tạo Markdown Report | `data/quality/*.json`, `data/reports/*.md` | Nguyễn Nam Phong |
-| Corruption/repair | [Input]        | [Corruption và repair]    | [Đường dẫn artifact] | [Thành viên] |
+| Corruption/repair | Cleaned DataFrame + frozen `test_set.json` doc IDs | Tạo 4 corruption scenario (blank_summary, stale_date, duplicate, add_noise) nhắm vào document trong evaluation set; log lại từng thay đổi. Repair từ raw records và ghép vào flow evaluate lại **chưa được implement** (`corruption_flow.py` còn `NotImplementedError`) | `data/clean/papers_clean_corrupted.csv/json`, `data/results/corruption_log.json` | Kiều Phúc Huy (corruption.py); repair/flow: [Thành viên] |
 | Orchestration     | [Input]        | [Thứ tự chạy]           | [Reports/metrics]        | [Thành viên] |
 
 ## 4. Cách tái hiện kết quả
