@@ -17,7 +17,7 @@
 | --: | --- | --- | --- | --- |
 | 1 | [Họ tên] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
 | 2 | [Họ tên] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
-| 3 | [Họ tên] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
+| 3 | Nguyễn Nam Phong | 2A202601320 | Observability | `quality.py`, `reporting.py`, Quality/Freshness artifacts |
 | 4 | [Nếu có] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
 | 5 | [Nếu có] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
 
@@ -62,7 +62,7 @@ Crossref API
 | Cleaning          | [Input]        | [Các quy tắc chính]     | [Đường dẫn artifact] | [Thành viên] |
 | Embedding/index   | [Input]        | [Model/index config]       | [Đường dẫn artifact] | [Thành viên] |
 | Evaluation        | [Input]        | [Test set và metrics]     | [Đường dẫn artifact] | [Thành viên] |
-| Observability     | [Input]        | [Quality/freshness checks] | [Đường dẫn artifact] | [Thành viên] |
+| Observability     | Cleaned DataFrame | Chạy rules Data Quality, Freshness và tạo Markdown Report | `data/quality/*.json`, `data/reports/*.md` | Nguyễn Nam Phong |
 | Corruption/repair | [Input]        | [Corruption và repair]    | [Đường dẫn artifact] | [Thành viên] |
 | Orchestration     | [Input]        | [Thứ tự chạy]           | [Reports/metrics]        | [Thành viên] |
 
@@ -206,18 +206,19 @@ Giải thích vì sao test set được giữ nguyên khi đánh giá baseline, 
 
 | Check        | Quality dimension | Ngưỡng/kỳ vọng | Kết quả baseline      | Bằng chứng |
 | ------------ | ----------------- | ------------------ | ----------------------- | ------------ |
-| [Tên check] | [Dimension]       | [Ngưỡng]         | [Pass/Fail + giá trị] | [Artifact]   |
-| [Tên check] | [Dimension]       | [Ngưỡng]         | [Pass/Fail + giá trị] | [Artifact]   |
+| Check Null/Unique `paper_id` | Uniqueness & Completeness | Không null, không trùng | [Pass/Fail + giá trị] | `data/quality/phase1_quality.json` |
+| Check Null `title` | Completeness | Không null | [Pass/Fail + giá trị] | `data/quality/phase1_quality.json` |
+| Check độ dài `summary` | Validity | Lớn hơn 10 ký tự | [Pass/Fail + giá trị] | `data/quality/phase1_quality.json` |
 
 ### Freshness
 
 | Thuộc tính               | Giá trị                           |
 | -------------------------- | ----------------------------------- |
-| Freshness được đo tại | [Dataset/index/artifact]            |
-| Timestamp mới nhất       | [Giá trị]                         |
-| Ngưỡng freshness         | [Giá trị]                         |
-| Trạng thái baseline      | [Fresh/Stale/Unknown]               |
-| Lý do                     | [Giải thích dựa trên số liệu] |
+| Freshness được đo tại | Dataset (`age_days` tính từ `published`) |
+| Timestamp mới nhất       | [Giá trị `latest_published`] |
+| Ngưỡng freshness         | 180 ngày |
+| Trạng thái baseline      | [Fresh/Stale] |
+| Lý do                     | [Giải thích dựa trên số liệu, VD: stale_rows = 0] |
 
 ## 9. Corruption scenarios và repair
 
