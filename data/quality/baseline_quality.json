@@ -1,0 +1,21 @@
+{
+    "row_count": 24,
+    "paper_id": {
+        "null_count": 0,
+        "duplicate_count": 0,
+        "passed": true
+    },
+    "title": {
+        "null_count": 0,
+        "passed": true
+    },
+    "summary": {
+        "too_short_count": 0,
+        "passed": true
+    },
+    "freshness": {
+        "stale_count": 0,
+        "passed": true
+    },
+    "overall_passed": true
+}

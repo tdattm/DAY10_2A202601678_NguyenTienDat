@@ -1,24 +1,32 @@
 from __future__ import annotations
 
-from functools import lru_cache
-
+from openai import OpenAI
 from langchain_core.embeddings import Embeddings
-from sentence_transformers import SentenceTransformer
 
 
-@lru_cache(maxsize=4)
-def _load_model(model_name: str) -> SentenceTransformer:
-    return SentenceTransformer(model_name)
+class OpenAITextEmbeddings(Embeddings):
+    """OpenAI embedding adapter for Chroma and Ragas."""
 
-
-class MiniLMEmbeddings(Embeddings):
-    def __init__(self, model_name: str):
-        self.model = _load_model(model_name)
+    def __init__(self, model_name: str = "text-embedding-3-small", api_key: str | None = None):
+        self.model_name = model_name
+        self.client = OpenAI(api_key=api_key)
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
-        embeddings = self.model.encode(texts, normalize_embeddings=True)
-        return embeddings.tolist()
+        if not texts:
+            return []
+        response = self.client.embeddings.create(
+            model=self.model_name,
+            input=[text.replace("\n", " ") for text in texts],
+        )
+        return [item.embedding for item in sorted(response.data, key=lambda item: item.index)]
 
     def embed_query(self, text: str) -> list[float]:
-        embedding = self.model.encode([text], normalize_embeddings=True)
-        return embedding[0].tolist()
+        response = self.client.embeddings.create(
+            model=self.model_name,
+            input=text.replace("\n", " "),
+        )
+        return response.data[0].embedding
+
+
+# Backwards-compatible name for modules or notebooks using the starter API.
+MiniLMEmbeddings = OpenAITextEmbeddings

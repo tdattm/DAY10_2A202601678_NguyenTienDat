@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime
+from html import unescape
+import re
 
 import pandas as pd
 
-from core.utils import normalize_whitespace
+from core.config import Settings
+from core.utils import ensure_parent, normalize_whitespace
 from ingestion.crossref import PaperRecord
 
 
@@ -22,15 +25,30 @@ CLEAN_COLUMNS = [
 ]
 
 
-def _normalize_list(values: list[str] | None) -> list[str]:
-    """Normalize string lists and remove case-insensitive duplicates."""
+def _clean_text(value: object) -> str:
+    """Remove XML/HTML tags and normalize whitespace."""
+    text = unescape(str(value or ""))
+    text = re.sub(r"<[^>]*>", " ", text)
+    return normalize_whitespace(text)
+
+
+def _normalize_list(values: list[str | dict] | None) -> list[str]:
+    """Flatten, normalize, and de-duplicate authors or categories."""
     if not isinstance(values, list):
         return []
 
     normalized: list[str] = []
     seen: set[str] = set()
     for value in values:
-        text = normalize_whitespace(str(value or ""))
+        if isinstance(value, dict):
+            text = _clean_text(
+                value.get("name")
+                or " ".join(
+                    part for part in (value.get("given"), value.get("family")) if part
+                )
+            )
+        else:
+            text = _clean_text(value)
         key = text.casefold()
         if text and key not in seen:
             normalized.append(text)
@@ -48,12 +66,12 @@ def build_clean_dataframe(records: list[PaperRecord], run_date: datetime) -> pd.
     rows: list[dict] = []
     for record in records:
         paper_id = normalize_whitespace(str(record.paper_id or ""))
-        title = normalize_whitespace(str(record.title or ""))
-        summary = normalize_whitespace(str(record.summary or ""))
+        title = _clean_text(record.title)
+        summary = _clean_text(record.summary)
         abs_url = normalize_whitespace(str(record.abs_url or ""))
         pdf_url = normalize_whitespace(str(record.pdf_url or ""))
 
-        if not paper_id or not title or not summary:
+        if not paper_id or not title or len(summary) < 100:
             continue
 
         published_timestamp = pd.to_datetime(record.published, errors="coerce")
@@ -72,13 +90,9 @@ def build_clean_dataframe(records: list[PaperRecord], run_date: datetime) -> pd.
         authors_joined = ", ".join(_normalize_list(record.authors))
         categories_joined = ", ".join(_normalize_list(record.categories))
 
-        text_parts = [f"Title: {title}."]
-        if authors_joined:
-            text_parts.append(f"Authors: {authors_joined}.")
-        if categories_joined:
-            text_parts.append(f"Categories: {categories_joined}.")
-        text_parts.extend([f"Published: {published}.", f"Summary: {summary}"])
-        text_for_embedding = normalize_whitespace(" ".join(text_parts))
+        text_for_embedding = (
+            f"Title: {title} | Authors: {authors_joined} | Summary: {summary}"
+        )
 
         rows.append(
             {
@@ -108,3 +122,11 @@ def build_clean_dataframe(records: list[PaperRecord], run_date: datetime) -> pd.
         kind="stable",
     ).reset_index(drop=True)
     return df[CLEAN_COLUMNS]
+
+
+def save_clean_artifacts(df: pd.DataFrame, settings: Settings) -> None:
+    """Save cleaned records to the configured CSV and JSON paths."""
+    ensure_parent(settings.paths.clean_csv)
+    ensure_parent(settings.paths.clean_json)
+    df.to_csv(settings.paths.clean_csv, index=False)
+    df.to_json(settings.paths.clean_json, orient="records", indent=2, force_ascii=False)

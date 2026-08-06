@@ -46,6 +46,7 @@ class Settings:
     model_name: str
     google_api_key: str | None
     openai_api_key: str | None
+    embedding_api_key: str | None
     anthropic_api_key: str | None
     openrouter_api_key: str | None
     openrouter_base_url: str
@@ -113,13 +114,14 @@ def load_settings(project_dir: Path | None = None) -> Settings:
         model_name=os.getenv("LLM_MODEL", "gemini-2.5-flash"),
         google_api_key=os.getenv("GOOGLE_API_KEY"),
         openai_api_key=os.getenv("OPENAI_API_KEY"),
+        embedding_api_key=os.getenv("EMBEDDING_API_KEY") or os.getenv("OPENAI_API_KEY"),
         anthropic_api_key=os.getenv("ANTHROPIC_API_KEY"),
         openrouter_api_key=os.getenv("OPENROUTER_API_KEY"),
         openrouter_base_url=os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1"),
         ollama_base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
         custom_llm_api_key=os.getenv("CUSTOM_LLM_API_KEY"),
         custom_llm_base_url=os.getenv("CUSTOM_LLM_BASE_URL"),
-        embedding_model="sentence-transformers/all-MiniLM-L6-v2",
+        embedding_model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),
         baseline_collection_name="papers-baseline",
         corrupted_collection_name="papers-corrupted",
         repaired_collection_name="papers-repaired",

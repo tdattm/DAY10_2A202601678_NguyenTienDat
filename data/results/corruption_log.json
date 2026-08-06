@@ -1,0 +1,64 @@
+{
+  "source": "clean dataset",
+  "frozen_test_set_doc_ids": [
+    "10.2118/234689-pa",
+    "10.1007/s10278-026-02086-9",
+    "10.21203/rs.3.rs-10178277/v1"
+  ],
+  "overlap_doc_ids": [
+    "10.1007/s10278-026-02086-9",
+    "10.2118/234689-pa",
+    "10.21203/rs.3.rs-10178277/v1"
+  ],
+  "original_row_count": 24,
+  "corrupted_row_count": 25,
+  "scenarios": [
+    {
+      "scenario": "blank_summary",
+      "paper_ids": [
+        "10.2118/234689-pa"
+      ],
+      "changed_fields": {
+        "summary": {
+          "from_length": 1404,
+          "to": ""
+        }
+      }
+    },
+    {
+      "scenario": "stale_date",
+      "paper_ids": [
+        "10.1007/s10278-026-02086-9"
+      ],
+      "changed_fields": {
+        "published": {
+          "from": "2026-07-13",
+          "to": "2000-01-01"
+        }
+      }
+    },
+    {
+      "scenario": "duplicate",
+      "paper_ids": [
+        "10.21203/rs.3.rs-10178277/v1"
+      ],
+      "changed_fields": {
+        "row_count_added": 1,
+        "paper_id_preserved": true
+      }
+    },
+    {
+      "scenario": "add_noise",
+      "paper_ids": [
+        "10.2118/234689-pa"
+      ],
+      "changed_fields": {
+        "text_for_embedding_suffix": " [NOISE::unrelated_weather_report_7f3a]"
+      }
+    }
+  ],
+  "artifacts": {
+    "csv": "C:\\Users\\LG\\Desktop\\vinai\\day10\\data\\clean\\papers_clean_corrupted.csv",
+    "json": "C:\\Users\\LG\\Desktop\\vinai\\day10\\data\\clean\\papers_clean_corrupted.json"
+  }
+}

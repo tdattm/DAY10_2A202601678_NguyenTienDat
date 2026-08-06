@@ -52,7 +52,8 @@ def parse_crossref_payload(payload: dict) -> list[PaperRecord]:
 
         doi = _as_text(item.get("DOI"))
         title = _first_text(item.get("title"))
-        if not doi or not title:
+        summary = _clean_abstract(item.get("abstract") or item.get("description"))
+        if not doi or not title or not summary:
             continue
 
         authors = []
@@ -90,7 +91,7 @@ def parse_crossref_payload(payload: dict) -> list[PaperRecord]:
             PaperRecord(
                 paper_id=doi,
                 title=title,
-                summary=_clean_abstract(item.get("abstract")),
+                summary=summary,
                 authors=authors,
                 categories=categories,
                 primary_category=categories[0] if categories else "",
